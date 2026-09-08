@@ -1,9 +1,39 @@
 /* ============================================================
-   UALCHAMPS - Estilos
-   Layout: [Cuartos A] → [Semi A] → [FINAL] ← [Semi B] ← [Cuartos B]
+   UALCHAMPS — UEFA Champions League & World Cup Soccer Edition
+   Paleta: Estadio nocturno, césped esmeralda, neón pitch y oro trofeo
+   Layout: [Cuartos A] → [Semi A] → [GRAN FINAL] ← [Semi B] ← [Cuartos B]
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Inter:wght@400;500;600&display=swap');
+:root {
+    --bg-night: #060e08;
+    --bg-stadium-1: #0a1b0e;
+    --bg-stadium-2: #0f2715;
+    --card-bg: rgba(13, 26, 16, 0.88);
+    --card-bg-hover: rgba(18, 38, 23, 0.95);
+    --card-border: rgba(34, 197, 94, 0.22);
+    --card-border-active: rgba(74, 222, 128, 0.55);
+    
+    --green-dark: #14532d;
+    --green-main: #16a34a;
+    --green-vibrant: #22c55e;
+    --green-neon: #4ade80;
+    --green-electric: #00ff87;
+    
+    --gold-trophy: #fbbf24;
+    --gold-light: #fde047;
+    --gold-glow: rgba(251, 191, 36, 0.35);
+    
+    --silver-medal: #cbd5e1;
+    --bronze-medal: #d97706;
+
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
+    --text-dim: #6b7280;
+
+    --font-heading: 'Barlow Condensed', sans-serif;
+    --font-mono: 'Chakra Petch', monospace;
+    --font-body: 'Inter', sans-serif;
+}
 
 * {
     box-sizing: border-box;
@@ -12,360 +42,1086 @@
 }
 
 body {
-    background-color: #0d1a0f;
-    background-image:
-        radial-gradient(ellipse at 15% 0%, rgba(34, 197, 94, 0.07) 0%, transparent 55%),
-        radial-gradient(ellipse at 85% 100%, rgba(22, 163, 74, 0.05) 0%, transparent 55%);
-    color: #e5e5e5;
-    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-night);
+    color: var(--text-main);
+    font-family: var(--font-body);
     min-height: 100vh;
-    padding-bottom: 80px;
+    position: relative;
+    overflow-x: hidden;
+    padding-bottom: 90px;
 }
 
-/* ---- HEADER ---- */
-h1 {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-weight: 900;
-    font-size: 3.8rem;
-    letter-spacing: 14px;
-    text-align: center;
-    text-transform: uppercase;
-    color: #ffffff;
-    padding: 40px 0 36px;
+/* ============================================================
+   ATMÓSFERA DE ESTADIO & ILUMINACIÓN (FLOODLIGHTS & PITCH)
+   ============================================================ */
+.stadium-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    background: 
+        radial-gradient(ellipse 100% 50% at 50% 0%, rgba(22, 163, 74, 0.18) 0%, transparent 65%),
+        radial-gradient(ellipse 80% 60% at 50% 100%, rgba(15, 39, 21, 0.4) 0%, transparent 70%),
+        linear-gradient(180deg, #07120a 0%, #050b06 100%);
+}
+
+/* Reflectores de estadio (Spotlights / Floodlights) */
+.floodlight {
+    position: absolute;
+    top: -150px;
+    width: 320px;
+    height: 700px;
+    background: radial-gradient(ellipse at 50% 0%, rgba(74, 222, 128, 0.22) 0%, rgba(34, 197, 94, 0.08) 45%, transparent 75%);
+    filter: blur(40px);
+    transform-origin: top center;
+    opacity: 0.7;
+    animation: floodlightSway 12s ease-in-out infinite alternate;
+}
+
+.floodlight--left {
+    left: 5%;
+    transform: rotate(25deg);
+    animation-delay: 0s;
+}
+
+.floodlight--center {
+    left: 50%;
+    transform: translateX(-50%) rotate(0deg);
+    width: 500px;
+    height: 800px;
+    background: radial-gradient(ellipse at 50% 0%, rgba(0, 255, 135, 0.16) 0%, rgba(34, 197, 94, 0.06) 50%, transparent 80%);
+    animation: floodlightPulse 8s ease-in-out infinite alternate;
+}
+
+.floodlight--right {
+    right: 5%;
+    transform: rotate(-25deg);
+    animation-delay: -6s;
+}
+
+@keyframes floodlightSway {
+    0%   { transform: rotate(18deg); opacity: 0.5; }
+    100% { transform: rotate(32deg); opacity: 0.8; }
+}
+
+@keyframes floodlightPulse {
+    0%   { opacity: 0.4; transform: translateX(-50%) scaleX(0.9); }
+    100% { opacity: 0.85; transform: translateX(-50%) scaleX(1.15); }
+}
+
+/* Líneas sutiles de cancha de fútbol */
+.pitch-lines {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) perspective(800px) rotateX(45deg);
+    width: 90vw;
+    max-width: 1400px;
+    height: 75vh;
+    border: 1px solid rgba(74, 222, 128, 0.05);
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.pitch-circle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 280px;
+    height: 280px;
+    border: 1.5px solid rgba(74, 222, 128, 0.07);
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(74, 222, 128, 0.03);
+}
+
+.pitch-circle::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: rgba(74, 222, 128, 0.15);
+    border-radius: 50%;
+}
+
+.pitch-halfway {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 1px;
+    height: 100%;
+    background: rgba(74, 222, 128, 0.06);
+}
+
+/* Estrellas y chispas Champions League */
+.stars-overlay {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        radial-gradient(1.5px 1.5px at 15% 20%, rgba(255, 255, 255, 0.35), transparent),
+        radial-gradient(2px 2px at 85% 15%, rgba(74, 222, 128, 0.4), transparent),
+        radial-gradient(1px 1px at 30% 75%, rgba(255, 255, 255, 0.25), transparent),
+        radial-gradient(2px 2px at 70% 80%, rgba(0, 255, 135, 0.3), transparent),
+        radial-gradient(1.5px 1.5px at 50% 35%, rgba(251, 191, 36, 0.35), transparent);
+    background-size: 550px 550px;
+}
+
+/* Canvas para lluvia de confeti del campeón */
+#confetti-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    pointer-events: none;
+}
+
+/* ============================================================
+   CONTENEDOR PRINCIPAL
+   ============================================================ */
+.main-container {
+    position: relative;
+    z-index: 10;
+    max-width: 1720px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ============================================================
+   ENCABEZADO DE TRANSMISIÓN OFICIAL (BROADCAST HEADER)
+   ============================================================ */
+.broadcast-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 10px 24px;
     position: relative;
 }
 
-h1::after {
+/* Badge de transmisión en vivo */
+.tournament-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(6, 26, 12, 0.85);
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    color: var(--green-neon);
+    margin-bottom: 12px;
+    box-shadow: 0 0 16px rgba(34, 197, 94, 0.15);
+    backdrop-filter: blur(8px);
+}
+
+.live-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--green-electric);
+    border-radius: 50%;
+    box-shadow: 0 0 8px var(--green-electric);
+    animation: livePulse 1.8s infinite;
+}
+
+.season-tag {
+    color: var(--gold-trophy);
+    font-weight: 800;
+    border-left: 1px solid rgba(255, 255, 255, 0.15);
+    padding-left: 8px;
+}
+
+@keyframes livePulse {
+    0%   { transform: scale(0.9); opacity: 0.6; }
+    50%  { transform: scale(1.3); opacity: 1; box-shadow: 0 0 12px var(--green-electric); }
+    100% { transform: scale(0.9); opacity: 0.6; }
+}
+
+/* Escudo y Título */
+.branding {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.brand-crest {
+    width: 64px;
+    height: 64px;
+    filter: drop-shadow(0 0 14px rgba(74, 222, 128, 0.45));
+    transition: transform 0.4s ease;
+}
+
+.brand-crest:hover {
+    transform: scale(1.08) rotate(5deg);
+}
+
+.crest-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.brand-title-wrap {
+    text-align: left;
+}
+
+.brand-title {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    font-size: 4.2rem;
+    line-height: 0.95;
+    letter-spacing: 12px;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #ffffff 10%, #d1fae5 55%, #34d399 90%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(34, 197, 94, 0.4);
+    position: relative;
+}
+
+.brand-subtitle {
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 6px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand-subtitle::before,
+.brand-subtitle::after {
     content: '';
-    display: block;
-    width: 50px;
-    height: 3px;
-    background: linear-gradient(90deg, #16a34a, #4ade80);
-    margin: 10px auto 0;
-    border-radius: 2px;
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.4), transparent);
+}
+
+/* Barra de Botones / Acciones */
+.tournament-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(14, 34, 19, 0.75);
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    color: var(--text-main);
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 8px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.btn-action:hover {
+    background: rgba(22, 163, 74, 0.25);
+    border-color: var(--green-neon);
+    color: #ffffff;
+    box-shadow: 0 0 18px rgba(74, 222, 128, 0.35);
+    transform: translateY(-2px);
+}
+
+.btn-action:active {
+    transform: translateY(0);
+}
+
+.btn-action--danger:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+    box-shadow: 0 0 18px rgba(239, 68, 68, 0.3);
+}
+
+.btn-action--confirming {
+    background: rgba(245, 158, 11, 0.25) !important;
+    border-color: #f59e0b !important;
+    color: #fbbf24 !important;
+    box-shadow: 0 0 18px rgba(245, 158, 11, 0.4) !important;
+    animation: warningPulse 0.9s infinite alternate;
+}
+
+@keyframes warningPulse {
+    0%   { transform: scale(1); }
+    100% { transform: scale(1.04); }
+}
+
+.btn-action--toggle {
+    border-color: rgba(251, 191, 36, 0.3);
+    color: var(--gold-light);
+}
+
+.btn-action--toggle:hover {
+    background: rgba(251, 191, 36, 0.2);
+    border-color: var(--gold-trophy);
+    box-shadow: 0 0 18px rgba(251, 191, 36, 0.3);
+}
+
+.btn-icon {
+    font-size: 1.05rem;
 }
 
 /* ============================================================
-   BRACKET — 5 columnas en espejo
+   BRACKET — 5 COLUMNAS EN ESPEJO
    ============================================================ */
-#bracket {
+.bracket-container {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    align-items: center;
-    gap: 16px;
-    padding: 16px 40px 0;
+    align-items: stretch;
+    gap: 20px;
+    padding: 24px 10px 10px;
     overflow-x: auto;
-    min-height: 60vh;
+    min-height: 65vh;
 }
 
 /* ============================================================
-   COLUMNA
+   COLUMNA DE FASE
    ============================================================ */
 .col {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    min-width: 260px;
+    min-width: 275px;
+    max-width: 320px;
     flex: 1;
-    max-width: 300px;
+    position: relative;
 }
 
-/* Columna central (final) */
+/* Columna de la Gran Final (Centro) */
 .col--center {
-    min-width: 240px;
-    max-width: 280px;
+    min-width: 310px;
+    max-width: 360px;
     align-items: center;
+    position: relative;
 }
 
-/* Título de columna */
+/* Columna de Semifinales: Centrada a la mitad exacta de los cuartos de final (título + cuadro juntos) */
+.col--semi {
+    justify-content: center;
+}
+
+.col--semi .col-header-box {
+    margin-bottom: 12px;
+}
+
+/* Título de Columna (Estilo Cintillo Champions League) */
+.col-header-box {
+    margin-bottom: 20px;
+    text-align: center;
+    position: relative;
+}
+
 .col-titulo {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.85rem;
-    font-weight: 700;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 800;
     letter-spacing: 4px;
     text-transform: uppercase;
-    color: #4b5563;
-    text-align: center;
-    padding-bottom: 16px;
-    width: 100%;
+    color: var(--text-muted);
+    display: inline-block;
+    padding: 4px 16px;
+    border-bottom: 2px solid rgba(74, 222, 128, 0.3);
+    position: relative;
+    transition: color 0.3s;
+}
+
+.col-titulo::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 30%;
+    width: 40%;
+    height: 2px;
+    background: var(--green-neon);
+    box-shadow: 0 0 8px var(--green-neon);
+}
+
+.col-titulo--gold {
+    color: var(--gold-trophy);
+    border-bottom-color: rgba(251, 191, 36, 0.4);
+    font-size: 1.15rem;
+    letter-spacing: 6px;
+}
+
+.col-titulo--gold::after {
+    background: var(--gold-trophy);
+    box-shadow: 0 0 10px var(--gold-trophy);
 }
 
 .col-titulo--small {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     letter-spacing: 3px;
-    color: #374151;
-    padding-bottom: 10px;
+    color: #94a3b8;
+    margin-top: 14px;
+    padding-bottom: 6px;
 }
 
-/* Trofeo */
-.trophy-icon {
-    font-size: 2.6rem;
-    line-height: 1;
-    filter: drop-shadow(0 0 12px rgba(34, 197, 94, 0.5));
-    margin-bottom: 12px;
-}
-
-/* Etiqueta de grupo */
-.grupo-label {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: #374151;
-    text-align: center;
-    padding: 8px 0 10px;
-}
-
-/* Separador 3er lugar */
+/* Separador 3er Lugar */
 .tercero-sep {
-    width: 36px;
-    height: 1px;
-    background: #1a2e1c;
-    margin: 16px auto 12px;
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(203, 213, 225, 0.4), transparent);
+    margin: 20px auto 14px;
+}
+
+/* Etiqueta de Grupo */
+.grupo-label {
+    font-family: var(--font-heading);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 3.5px;
+    text-transform: uppercase;
+    color: var(--green-neon);
+    text-align: center;
+    padding: 4px 0 10px;
+    opacity: 0.9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.grupo-label::before,
+.grupo-label::after {
+    content: '•';
+    color: rgba(74, 222, 128, 0.4);
+}
+
+/* Trofeo de la Gran Final */
+.trophy-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 12px;
+    position: relative;
+}
+
+.trophy-aura {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    background: radial-gradient(circle, rgba(251, 191, 36, 0.35) 0%, rgba(34, 197, 94, 0.15) 50%, transparent 75%);
+    filter: blur(20px);
+    border-radius: 50%;
+    z-index: 0;
+    animation: trophyGlow 4s ease-in-out infinite alternate;
+}
+
+@keyframes trophyGlow {
+    0%   { transform: scale(0.9); opacity: 0.6; }
+    100% { transform: scale(1.25); opacity: 1; }
+}
+
+.trophy-svg-wrap {
+    position: relative;
+    z-index: 1;
+    width: 68px;
+    height: 68px;
+    filter: drop-shadow(0 0 16px rgba(251, 191, 36, 0.6));
+    animation: trophyBounce 3s ease-in-out infinite;
+}
+
+@keyframes trophyBounce {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-5px); }
 }
 
 /* ============================================================
-   PARTIDO
+   TARJETA DE PARTIDO (BROADCAST MATCH CARD)
    ============================================================ */
 .partido-wrap {
-    margin-bottom: 12px;
+    margin-bottom: 16px;
     display: flex;
     flex-direction: column;
     width: 100%;
 }
 
-.partido-hora {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 2px;
-    color: #4b5563;
-    text-align: right;
-    padding-right: 2px;
-    margin-bottom: 5px;
-}
-
 .partido-card {
-    background: #161f17;
-    border: 1px solid #1f2f21;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
     border-radius: 12px;
     overflow: hidden;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+    backdrop-filter: blur(14px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
     width: 100%;
 }
 
+.partido-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.35), transparent);
+    opacity: 0.7;
+}
+
 .partido-card:hover {
-    border-color: #166534;
-    box-shadow: 0 0 0 1px rgba(22, 163, 74, 0.08);
+    border-color: var(--card-border-active);
+    box-shadow: 0 10px 30px rgba(22, 163, 74, 0.2);
+    transform: translateY(-2px);
 }
 
+/* Tarjeta de la Gran Final */
 .partido-card--final {
-    border-color: #16a34a;
-    background: #0f1c11;
-    box-shadow:
-        0 0 0 1px rgba(22, 163, 74, 0.1),
-        0 8px 32px rgba(0, 0, 0, 0.5);
+    border-color: rgba(251, 191, 36, 0.45);
+    background: linear-gradient(180deg, rgba(20, 42, 25, 0.92) 0%, rgba(10, 24, 13, 0.95) 100%);
+    box-shadow: 
+        0 0 0 1px rgba(251, 191, 36, 0.3),
+        0 14px 40px rgba(0, 0, 0, 0.65),
+        0 0 25px rgba(251, 191, 36, 0.15);
 }
 
+.partido-card--final:hover {
+    border-color: var(--gold-trophy);
+    box-shadow: 
+        0 0 0 1px var(--gold-trophy),
+        0 16px 45px rgba(0, 0, 0, 0.7),
+        0 0 35px rgba(251, 191, 36, 0.3);
+}
+
+/* Tarjeta 3er Lugar */
 .partido-card--tercero {
-    background: #141c15;
-    border-color: #1a2a1c;
+    background: rgba(14, 24, 16, 0.85);
+    border-color: rgba(203, 213, 225, 0.2);
 }
 
-/* VS / marcador */
-.vs-label {
-    text-align: center;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.72rem;
-    font-weight: 900;
-    letter-spacing: 4px;
-    color: #252525;
-    padding: 5px 0;
-    background: #0e0e0e;
-    border-top: 1px solid #191919;
-    border-bottom: 1px solid #191919;
+/* Header interno del partido (Hora + Estado) */
+.partido-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 12px;
+    background: rgba(4, 14, 7, 0.75);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-family: var(--font-heading);
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
 }
 
-.vs-label--score {
-    font-size: 1.05rem;
-    letter-spacing: 6px;
-    color: #4b5563;
+.partido-badge-status {
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.partido-badge-status--pend {
+    background: rgba(255, 255, 255, 0.05);
+    color: #94a3b8;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.partido-badge-status--live {
+    background: rgba(22, 163, 74, 0.2);
+    color: var(--green-neon);
+    border: 1px solid var(--green-main);
+    box-shadow: 0 0 8px rgba(74, 222, 128, 0.25);
+    animation: statusPulse 1.5s infinite alternate;
+}
+
+.partido-badge-status--done {
+    background: rgba(74, 222, 128, 0.15);
+    color: var(--green-neon);
+    border: 1px solid rgba(74, 222, 128, 0.4);
+}
+
+@keyframes statusPulse {
+    0%   { opacity: 0.75; }
+    100% { opacity: 1; }
 }
 
 /* ============================================================
-   FILA DE EQUIPO (nombre + score input)
+   FILA DE EQUIPO
    ============================================================ */
 .equipo-fila {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 12px 0 10px;
-    min-height: 48px;
+    padding: 8px 12px;
+    min-height: 52px;
     gap: 10px;
-    transition: background 0.15s;
+    transition: background 0.2s ease, transform 0.2s ease;
+    position: relative;
 }
 
-.equipo-fila--final   { min-height: 56px; }
+.equipo-fila--final   { min-height: 58px; }
 .equipo-fila--tercero { min-height: 50px; }
 
-.equipo-fila--ganador  { background: #14532d; }
-.equipo-fila--perdedor { opacity: 0.3; }
-.equipo-fila--vacio    { opacity: 0.4; }
+.equipo-fila--ganador {
+    background: linear-gradient(90deg, rgba(20, 83, 45, 0.65) 0%, rgba(13, 40, 20, 0.2) 100%);
+    border-left: 3px solid var(--green-neon);
+}
 
-/* Círculo identificador de equipo */
-.equipo-dot {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
+.equipo-fila--perdedor {
+    opacity: 0.38;
+}
+
+.equipo-fila--vacio {
+    opacity: 0.45;
+}
+
+/* Badge / Escudo de equipo */
+.equipo-badge {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    font-weight: 900;
+    color: #ffffff;
     flex-shrink: 0;
-    display: inline-block;
-    margin-right: 8px;
-    box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
-    transition: opacity 0.15s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+    border: 1.5px solid rgba(255, 255, 255, 0.3);
 }
 
-.equipo-fila--perdedor .equipo-dot {
-    opacity: 0.25;
-}
-
-/* Nombre del equipo */
+/* Nombre de equipo */
 .equipo-nombre {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 1.05rem;
+    font-family: var(--font-heading);
+    font-size: 1.12rem;
     font-weight: 700;
     letter-spacing: 0.8px;
     text-transform: uppercase;
-    color: #9ca3af;
+    color: #d1d5db;
     flex: 1;
-    line-height: 1.2;
+    line-height: 1.15;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.2s ease;
 }
 
-.equipo-fila--ganador  .equipo-nombre { color: #4ade80; }
-.equipo-fila--perdedor .equipo-nombre { color: #6b7280; }
-.equipo-fila--vacio    .equipo-nombre {
-    color: #2a2a2a;
+.equipo-fila--ganador .equipo-nombre {
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(74, 222, 128, 0.4);
+    font-weight: 800;
+}
+
+.equipo-fila--final .equipo-nombre {
+    font-size: 1.25rem;
+    letter-spacing: 1.2px;
+}
+
+.equipo-fila--vacio .equipo-nombre {
+    color: #4b5563;
     font-style: italic;
     font-weight: 400;
-    font-size: 0.88rem;
-    letter-spacing: 0;
+    font-size: 0.95rem;
 }
 
-.equipo-fila--final   .equipo-nombre { font-size: 1.15rem; }
-.equipo-fila--tercero .equipo-nombre { font-size: 1rem; color: #6b7280; }
+/* Corona o marca de clasificado */
+.winner-star {
+    color: var(--gold-trophy);
+    font-size: 0.9rem;
+    margin-left: 4px;
+    animation: starPop 0.35s ease;
+}
 
-/* Input de score */
+@keyframes starPop {
+    0%   { transform: scale(0); opacity: 0; }
+    80%  { transform: scale(1.3); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* ============================================================
+   INPUT DE SCORE (ESTILO MARCADOR DIGITAL LED)
+   ============================================================ */
 .score-input {
-    width: 54px;
+    width: 50px;
+    height: 38px;
     flex-shrink: 0;
-    background: #0e1a10;
-    border: 1px solid #2a3d2c;
-    border-radius: 7px;
-    color: #e5e5e5;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 1.3rem;
+    background: #09140b;
+    border: 1.5px solid rgba(74, 222, 128, 0.25);
+    border-radius: 8px;
+    color: #ffffff;
+    font-family: var(--font-mono);
+    font-size: 1.4rem;
     font-weight: 700;
     text-align: center;
-    padding: 5px 2px;
+    padding: 0;
     outline: none;
-    transition: border-color 0.15s, background 0.15s;
+    transition: all 0.2s ease;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.7);
     -moz-appearance: textfield;
 }
+
 .score-input::-webkit-outer-spin-button,
-.score-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.score-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 
 .score-input:focus {
-    border-color: #16a34a;
-    background: #0f2214;
+    border-color: var(--green-neon);
+    background: #0f2414;
+    box-shadow: 
+        0 0 12px rgba(74, 222, 128, 0.4),
+        inset 0 1px 3px rgba(0, 0, 0, 0.5);
+    color: var(--green-electric);
 }
 
 .score-input--ganador {
-    border-color: #16a34a;
-    color: #4ade80;
-    background: #0c1f0e;
+    border-color: var(--green-neon);
+    color: var(--green-electric);
+    background: #081e0f;
+    box-shadow: 0 0 10px rgba(74, 222, 128, 0.25);
 }
 
 .score-input--perdedor {
-    border-color: #1a1a1a;
-    color: #3a3a3a;
+    border-color: #1a251c;
+    color: #4b5563;
+    background: #080d09;
+}
+
+/* Separador VS central */
+.vs-label {
+    text-align: center;
+    font-family: var(--font-heading);
+    font-size: 0.74rem;
+    font-weight: 900;
+    letter-spacing: 4px;
+    color: #374151;
+    padding: 3px 0;
+    background: rgba(3, 9, 4, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    position: relative;
+}
+
+.vs-label--score {
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    letter-spacing: 5px;
+    color: var(--text-muted);
 }
 
 /* ============================================================
-   ANUNCIO
+   TANDA DE PENALES (DESEMPATE FIFA / CHAMPIONS LEAGUE)
    ============================================================ */
-#winner-announcement {
-    text-align: center;
-    margin-top: 44px;
-    padding: 0 16px;
+.penales-container {
+    background: rgba(18, 30, 20, 0.95);
+    border-top: 1px dashed rgba(251, 191, 36, 0.4);
+    padding: 8px 12px;
+    animation: penalesFade 0.3s ease;
 }
 
-.anuncio-campeon {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 2.4rem;
-    font-weight: 900;
-    letter-spacing: 7px;
-    color: #4ade80;
-    text-transform: uppercase;
-    animation: fadeUp 0.4s ease;
-}
-
-.anuncio-segundo {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 1.7rem;
-    font-weight: 700;
-    letter-spacing: 5px;
-    color: #86efac;
-    text-transform: uppercase;
-    margin-top: 6px;
-    animation: fadeUp 0.4s ease;
-}
-
-.anuncio-tercero {
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 1.4rem;
-    font-weight: 700;
-    letter-spacing: 4px;
-    color: #6b7280;
-    text-transform: uppercase;
-    margin-top: 8px;
-    animation: fadeUp 0.4s ease;
-}
-
-@keyframes fadeUp {
-    from { opacity: 0; transform: translateY(8px); }
+@keyframes penalesFade {
+    from { opacity: 0; transform: translateY(-4px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* ============================================================
-   SCROLLBAR
-   ============================================================ */
-::-webkit-scrollbar { height: 4px; width: 4px; }
-::-webkit-scrollbar-track { background: #0d1a0f; }
-::-webkit-scrollbar-thumb { background: #1f2f21; border-radius: 4px; }
+.penales-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--gold-trophy);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.penales-inputs {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.penal-team-label {
+    font-family: var(--font-heading);
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.penal-team-label--right {
+    text-align: right;
+}
+
+.penal-input {
+    width: 38px;
+    height: 30px;
+    background: #081009;
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    border-radius: 6px;
+    color: var(--gold-light);
+    font-family: var(--font-mono);
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-align: center;
+    outline: none;
+    -moz-appearance: textfield;
+}
+
+.penal-input::-webkit-outer-spin-button,
+.penal-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.penal-input:focus {
+    border-color: var(--gold-trophy);
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.4);
+}
+
+.penal-vs {
+    font-family: var(--font-heading);
+    font-size: 0.7rem;
+    color: var(--gold-trophy);
+    font-weight: 800;
+}
 
 /* ============================================================
-   RESPONSIVE — apilado vertical en móvil
+   CEREMONIA DE PREMIACIÓN & PODIO DEL CAMPEÓN
    ============================================================ */
-@media (max-width: 1100px) {
-    .col      { min-width: 200px; }
-    .col--center { min-width: 200px; }
+.winner-section {
+    margin-top: 50px;
+    padding: 0 10px;
+    position: relative;
+}
+
+.podium-card {
+    background: linear-gradient(180deg, rgba(14, 38, 20, 0.95) 0%, rgba(6, 18, 9, 0.98) 100%);
+    border: 2px solid var(--gold-trophy);
+    border-radius: 20px;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 34px 24px;
+    text-align: center;
+    position: relative;
+    box-shadow: 
+        0 0 0 1px rgba(251, 191, 36, 0.4),
+        0 20px 60px rgba(0, 0, 0, 0.7),
+        0 0 45px rgba(251, 191, 36, 0.25);
+    backdrop-filter: blur(20px);
+    animation: podiumEnter 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes podiumEnter {
+    from { opacity: 0; transform: scale(0.92) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.podium-stars {
+    font-size: 1.4rem;
+    color: var(--gold-trophy);
+    letter-spacing: 6px;
+    margin-bottom: 6px;
+}
+
+.podium-title {
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    margin-bottom: 8px;
+}
+
+.podium-champion-name {
+    font-family: var(--font-heading);
+    font-size: 3.5rem;
+    font-weight: 900;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    line-height: 1;
+    background: linear-gradient(180deg, #ffffff 0%, #fef08a 40%, #fbbf24 75%, #b45309 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 35px rgba(251, 191, 36, 0.5);
+    margin-bottom: 24px;
+}
+
+.podium-grid {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 16px;
+    margin-top: 14px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.podium-step {
+    flex: 1;
+    max-width: 220px;
+    background: rgba(9, 23, 13, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.2s ease;
+}
+
+.podium-step:hover {
+    transform: translateY(-4px);
+}
+
+.podium-step--gold {
+    border-color: rgba(251, 191, 36, 0.5);
+    background: linear-gradient(180deg, rgba(28, 48, 26, 0.95) 0%, rgba(13, 27, 16, 0.95) 100%);
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.2);
+    transform: translateY(-8px);
+}
+
+.podium-step--gold:hover {
+    transform: translateY(-12px);
+}
+
+.podium-medal {
+    font-size: 2.2rem;
+    margin-bottom: 6px;
+}
+
+.podium-pos {
+    font-family: var(--font-heading);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+}
+
+.podium-step--gold .podium-pos { color: var(--gold-trophy); }
+
+.podium-team {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-main);
+}
+
+/* ============================================================
+   SCROLLBAR DE ESTADIO
+   ============================================================ */
+::-webkit-scrollbar {
+    height: 7px;
+    width: 7px;
+}
+
+::-webkit-scrollbar-track {
+    background: #060e08;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #14351d;
+    border-radius: 4px;
+    border: 1px solid rgba(74, 222, 128, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #1e522d;
+}
+
+/* ============================================================
+   RESPONSIVIDAD & DISPOSITIVOS MÓVILES
+   ============================================================ */
+@media (max-width: 1280px) {
+    .col { min-width: 235px; }
+    .col--center { min-width: 270px; }
+    .brand-title { font-size: 3.4rem; letter-spacing: 8px; }
+    .brand-crest { width: 52px; height: 52px; }
+}
+
+@media (max-width: 992px) {
+    .bracket-container {
+        justify-content: flex-start;
+        padding-bottom: 24px;
+    }
 }
 
 @media (max-width: 860px) {
-    h1 { font-size: 2.4rem; letter-spacing: 8px; }
-
-    #bracket {
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
-        padding: 16px;
+    .brand-title {
+        font-size: 2.4rem;
+        letter-spacing: 5px;
     }
 
-    .col,
-    .col--center {
+    .brand-subtitle {
+        font-size: 0.8rem;
+        letter-spacing: 3px;
+    }
+
+    .broadcast-header {
+        padding: 20px 10px 16px;
+    }
+
+    .bracket-container {
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+    }
+
+    .col, .col--center {
         width: 100%;
-        max-width: 400px;
+        max-width: 440px;
         min-width: unset;
+    }
+
+    .col--semi {
+        justify-content: flex-start;
+    }
+
+    .podium-grid {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .podium-step--gold {
+        transform: none;
+    }
+
+    .podium-step--gold:hover {
+        transform: none;
     }
 }

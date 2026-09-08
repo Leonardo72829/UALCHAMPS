@@ -3,15 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UALCHAMPS</title>
+    <title>UALCHAMPS • Torneo Oficial de Fútbol</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700;1,900&family=Chakra+Petch:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h1>UALCHAMPS</h1>
+    <!-- Atmósfera de estadio y reflectores -->
+    <div class="stadium-bg">
+        <div class="floodlight floodlight--left"></div>
+        <div class="floodlight floodlight--center"></div>
+        <div class="floodlight floodlight--right"></div>
+        <div class="pitch-lines">
+            <div class="pitch-circle"></div>
+            <div class="pitch-halfway"></div>
+        </div>
+        <div class="stars-overlay"></div>
+    </div>
 
-    <div id="bracket"></div>
-    <div id="winner-announcement"></div>
+    <!-- Canvas para celebración con confeti de campeón -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <div class="main-container">
+        <!-- Encabezado de Transmisión Oficial estilo Champions League / Mundial -->
+        <header class="broadcast-header">
+            <div class="tournament-badge">
+                <span class="live-dot"></span>
+                <span>OFICIAL MATCH DAY • FASE FINAL</span>
+                <span class="season-tag">EDICIÓN 2026</span>
+            </div>
+
+            <div class="branding">
+                <div class="brand-crest">
+                    <svg viewBox="0 0 100 100" class="crest-svg" aria-hidden="true">
+                        <!-- Corona de estrellas Champions -->
+                        <g class="star-group" fill="#4ade80">
+                            <polygon points="50,4 52,10 58,10 53,14 55,20 50,16 45,20 47,14 42,10 48,10" />
+                            <polygon points="28,12 30,17 36,17 31,21 33,27 28,23 23,27 25,21 20,17 26,17" />
+                            <polygon points="72,12 74,17 80,17 75,21 77,27 72,23 67,27 69,21 64,17 70,17" />
+                            <polygon points="12,28 14,33 20,33 15,37 17,43 12,39 7,43 9,37 4,33 10,33" />
+                            <polygon points="88,28 90,33 96,33 91,37 93,43 88,39 83,43 85,37 80,33 86,33" />
+                        </g>
+                        <!-- Escudo exterior -->
+                        <path d="M50 18 L84 28 C84 62 50 88 50 88 C50 88 16 62 16 28 Z" fill="url(#crestGrad)" stroke="#22c55e" stroke-width="2.5" />
+                        <!-- Balón estilizado central -->
+                        <circle cx="50" cy="52" r="20" fill="#0b170e" stroke="#4ade80" stroke-width="2" />
+                        <polygon points="50,42 58,48 55,58 45,58 42,48" fill="#22c55e" />
+                        <line x1="50" y1="42" x2="50" y2="32" stroke="#4ade80" stroke-width="1.5" />
+                        <line x1="58" y1="48" x2="68" y2="46" stroke="#4ade80" stroke-width="1.5" />
+                        <line x1="55" y1="58" x2="62" y2="67" stroke="#4ade80" stroke-width="1.5" />
+                        <line x1="45" y1="58" x2="38" y2="67" stroke="#4ade80" stroke-width="1.5" />
+                        <line x1="42" y1="48" x2="32" y2="46" stroke="#4ade80" stroke-width="1.5" />
+                        <defs>
+                            <linearGradient id="crestGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#0e2916" />
+                                <stop offset="100%" stop-color="#051208" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                
+                <div class="brand-title-wrap">
+                    <h1 class="brand-title">UALCHAMPS</h1>
+                    <p class="brand-subtitle">CAMPEONATO UNIVERSITARIO DE FÚTBOL</p>
+                </div>
+            </div>
+
+            <!-- Barra de Herramientas y Acciones del Torneo -->
+            <div class="tournament-toolbar">
+                <button id="btn-simular" class="btn-action" title="Simular resultados automáticamente">
+                    <span class="btn-icon">⚡</span>
+                    <span class="btn-text">Simular Torneo</span>
+                </button>
+                <button id="btn-reset" class="btn-action btn-action--danger" title="Reiniciar todos los marcadores">
+                    <span class="btn-icon">↺</span>
+                    <span class="btn-text">Reiniciar</span>
+                </button>
+                <button id="btn-sound" class="btn-action btn-action--toggle" title="Activar/Silenciar efectos de sonido">
+                    <span class="btn-icon" id="sound-icon">🔊</span>
+                    <span class="btn-text" id="sound-text">Sonido: ON</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Bracket con 5 columnas en espejo: [Cuartos A] → [Semi A] → [FINAL] ← [Semi B] ← [Cuartos B] -->
+        <main>
+            <div id="bracket" class="bracket-container"></div>
+            <!-- Sección de Premiación / Podio de Campeones -->
+            <section id="winner-announcement" class="winner-section" aria-live="polite"></section>
+        </main>
+    </div>
 
     <script src="script.js"></script>
 </body>
