@@ -1,261 +1,350 @@
-// ===============================
-// GENERAR INPUTS
-// ===============================
-document.addEventListener("DOMContentLoaded", function () {
-    let grid = document.getElementById("inputs-grid")
-    for (let i = 0; i < 16; i++) {
-        let col = document.createElement("div")
-        col.className = "col-6 col-md-3 mb-2"
-        col.innerHTML = `<div class="input-wrapper">
-            <span class="input-num">${i + 1}</span>
-            <input id="t${i}" class="form-control" placeholder="Equipo ${i + 1}">
-        </div>`
-        grid.appendChild(col)
-    }
-})
+// ============================================================
+// UALCHAMPS - Bracket fijo con marcadores
+// Layout: [Cuartos A] → [Semi A] → [FINAL] ← [Semi B] ← [Cuartos B]
+// El ganador se determina automáticamente al ingresar ambos scores.
+// ============================================================
 
-// ===============================
-// VARIABLES
-// ===============================
-let arbolIzq, arbolDer
-let finalistas = [null, null]
-let semifinalistas = [null, null] // perdedores de semis
-let campeon = null
-let segundo = null
-let tercero = null
-
-// ===============================
-// ÁRBOL
-// ===============================
-function nodo(equipo, izq, der) {
-    return { equipo, izq, der }
+// ---- DATOS FIJOS ----
+// scores: [scoreA, scoreB] — null mientras no se ingresa
+const estado = {
+    cuartos: [
+        { id: 0, grupo: "A", hora: "09:00 AM", eq: ["PRIMERO IIS",  "TERCERO IIS"],  ganador: null, scores: [null, null] },
+        { id: 1, grupo: "A", hora: "09:00 AM", eq: ["SEPTIMO IIS",  "SEPTIMO ISC"],  ganador: null, scores: [null, null] },
+        { id: 2, grupo: "B", hora: "09:30 AM", eq: ["PRIMERO ISC",  "QUINTO IIS"],   ganador: null, scores: [null, null] },
+        { id: 3, grupo: "B", hora: "09:30 AM", eq: ["TERCERO ISC",  "QUINTO ISC"],   ganador: null, scores: [null, null] },
+    ],
+    semis: [
+        { id: 0, grupo: "A", cruces: [0, 1], ganador: null, scores: [null, null] },
+        { id: 1, grupo: "B", cruces: [2, 3], ganador: null, scores: [null, null] },
+    ],
+    final:   { ganador: null, subcampeon: null, scores: [null, null] },
+    tercero: { ganador: null, scores: [null, null] },
 }
 
-function crearArbol(equipos) {
-    if (equipos.length === 1) return nodo(equipos[0], null, null)
-    let mitad = equipos.length / 2
-    return nodo(null, crearArbol(equipos.slice(0, mitad)), crearArbol(equipos.slice(mitad)))
-}
+// ---- RENDER PRINCIPAL ----
+function render() {
+    // Guardar foco activo antes de redibujar
+    const focoAnterior = document.activeElement ? document.activeElement.dataset.inputId : null
 
-// Devuelve el perdedor del nodo raíz del árbol (el que no avanzó a la final)
-function getPerdedorSemi(arbol) {
-    if (!arbol || !arbol.izq) return null
-    let ganador = arbol.equipo
-    if (!ganador) return null
-    if (arbol.izq.equipo === ganador) return arbol.der.equipo
-    return arbol.izq.equipo
-}
+    const bracket = document.getElementById("bracket")
+    bracket.innerHTML = ""
 
-function avanzar(n, ganador) {
-    if (!n || !n.izq) return false
-    if (n.izq.equipo === ganador || n.der.equipo === ganador) {
-        n.equipo = ganador
-        return true
-    }
-    return avanzar(n.izq, ganador) || avanzar(n.der, ganador)
-}
+    bracket.appendChild(columna("CUARTOS DE FINAL", renderCuartosGrupo("A")))
+    bracket.appendChild(columna("SEMIFINAL",        renderSemiGrupo("A")))
+    bracket.appendChild(columnaFinal())
+    bracket.appendChild(columna("SEMIFINAL",        renderSemiGrupo("B")))
+    bracket.appendChild(columna("CUARTOS DE FINAL", renderCuartosGrupo("B")))
 
-// ===============================
-// INICIAR TORNEO
-// ===============================
-function iniciar() {
-    let equipos = []
-    for (let i = 0; i < 16; i++) {
-        let val = document.getElementById("t" + i).value
-        if (val === "") return alert("Llena todos los equipos")
-        equipos.push(val)
+    // Restaurar foco
+    if (focoAnterior) {
+        const el = document.querySelector(`[data-input-id="${focoAnterior}"]`)
+        if (el) { el.focus(); el.select() }
     }
 
-    arbolIzq = crearArbol(equipos.slice(0, 8))
-    arbolDer = crearArbol(equipos.slice(8))
-    finalistas = [null, null]
-    semifinalistas = [null, null]
-    campeon = null
-    segundo = null
-    tercero = null
-
-    document.getElementById("setup-form").classList.add("d-none")
-    document.getElementById("tournament-bracket").classList.remove("d-none")
-    document.getElementById("winner-announcement").innerHTML = ""
-
-    dibujar()
+    renderAnuncio()
 }
 
-// ===============================
-// DIBUJAR
-// ===============================
-function dibujar() {
-    let cont = document.getElementById("tournament-bracket")
-    cont.innerHTML = ""
-
-    cont.appendChild(lado(arbolIzq, true))
-    cont.appendChild(zonacentral())
-    cont.appendChild(lado(arbolDer, false))
+// ---- COLUMNA GENÉRICA ----
+function columna(titulo, ...nodos) {
+    const col = document.createElement("div")
+    col.className = "col"
+    const label = document.createElement("div")
+    label.className = "col-titulo"
+    label.textContent = titulo
+    col.appendChild(label)
+    nodos.forEach(n => col.appendChild(n))
+    return col
 }
 
-function lado(arbol, esIzq) {
-    let div = document.createElement("div")
-    div.className = "side " + (esIzq ? "side-left" : "side-right")
+// ---- COLUMNA CENTRAL (FINAL + 3ER) ----
+function columnaFinal() {
+    const col = document.createElement("div")
+    col.className = "col col--center"
 
-    function getNiveles(n, nivel, niveles) {
-        if (!n || !n.izq) return
-        if (!niveles[nivel]) niveles[nivel] = []
-        niveles[nivel].push(n)
-        getNiveles(n.izq, nivel + 1, niveles)
-        getNiveles(n.der, nivel + 1, niveles)
-    }
-
-    let niveles = []
-    getNiveles(arbol, 0, niveles)
-    niveles.reverse()
-
-    let rondaNombres = ["OCTAVOS", "CUARTOS", "SEMIS"]
-
-    niveles.forEach(function(partidos, idx) {
-        let col = document.createElement("div")
-        col.className = "column"
-
-        let label = document.createElement("div")
-        label.className = "round-label"
-        label.textContent = rondaNombres[idx] || ""
-        col.appendChild(label)
-
-        partidos.forEach(function(n) {
-            let match = document.createElement("div")
-            match.className = "match"
-            match.appendChild(equipoBtn(n.izq.equipo))
-            match.appendChild(equipoBtn(n.der.equipo))
-            col.appendChild(match)
-        })
-
-        div.appendChild(col)
-    })
-
-    return div
-}
-
-function equipoBtn(nombre) {
-    let div = document.createElement("div")
-    div.className = nombre ? "team" : "team empty"
-    div.textContent = nombre || "???"
-
-    if (nombre) {
-        div.onclick = function () {
-            avanzar(arbolIzq, nombre)
-            avanzar(arbolDer, nombre)
-
-            if (arbolIzq.equipo === nombre) {
-                finalistas[0] = nombre
-                semifinalistas[0] = getPerdedorSemi(arbolIzq)
-            }
-            if (arbolDer.equipo === nombre) {
-                finalistas[1] = nombre
-                semifinalistas[1] = getPerdedorSemi(arbolDer)
-            }
-
-            dibujar()
-        }
-    }
-
-    return div
-}
-
-// ===============================
-// ZONA CENTRAL
-// ===============================
-function zonacentral() {
-    let div = document.createElement("div")
-    div.className = "center-zone"
-
-    // --- FINAL ---
-    let labelFinal = document.createElement("div")
-    labelFinal.className = "round-label center-label"
-    labelFinal.textContent = "FINAL"
-
-    let trophy = document.createElement("div")
+    const trophy = document.createElement("div")
     trophy.className = "trophy-icon"
     trophy.textContent = "🏆"
+    col.appendChild(trophy)
 
-    let boxFinal = document.createElement("div")
-    boxFinal.className = "final-box"
-    boxFinal.appendChild(eqFinal(finalistas[0]))
-    let vs = document.createElement("div")
-    vs.className = "vs-label"
-    vs.textContent = "VS"
-    boxFinal.appendChild(vs)
-    boxFinal.appendChild(eqFinal(finalistas[1]))
+    const label = document.createElement("div")
+    label.className = "col-titulo"
+    label.textContent = "FINAL"
+    col.appendChild(label)
 
-    div.appendChild(labelFinal)
-    div.appendChild(trophy)
-    div.appendChild(boxFinal)
+    const eqA = estado.semis[0].ganador
+    const eqB = estado.semis[1].ganador
+    col.appendChild(renderPartido({
+        id:      "final",
+        eq:      [eqA, eqB],
+        ganador: estado.final.ganador,
+        scores:  estado.final.scores,
+        tipo:    "final",
+        onScore: (sA, sB) => {
+            estado.final.scores = [sA, sB]
+            const g = resolverGanador(eqA, eqB, sA, sB)
+            estado.final.ganador    = g
+            estado.final.subcampeon = g ? (g === eqA ? eqB : eqA) : null
+            render()
+        },
+    }))
 
-    // --- TERCER LUGAR (solo si hay semifinalistas) ---
-    if (semifinalistas[0] || semifinalistas[1]) {
-        let sep = document.createElement("div")
-        sep.className = "third-separator"
+    // 3er lugar
+    const perdA = perdedorSemi(0)
+    const perdB = perdedorSemi(1)
+    if (perdA || perdB) {
+        const sep = document.createElement("div")
+        sep.className = "tercero-sep"
+        col.appendChild(sep)
 
-        let labelTercero = document.createElement("div")
-        labelTercero.className = "round-label center-label"
-        labelTercero.textContent = "3ER LUGAR"
+        const labelT = document.createElement("div")
+        labelT.className = "col-titulo col-titulo--small"
+        labelT.textContent = "3ER LUGAR"
+        col.appendChild(labelT)
 
-        let boxTercero = document.createElement("div")
-        boxTercero.className = "third-box"
-        boxTercero.appendChild(eqTercero(semifinalistas[0]))
-        let vs3 = document.createElement("div")
-        vs3.className = "vs-label"
-        vs3.textContent = "VS"
-        boxTercero.appendChild(vs3)
-        boxTercero.appendChild(eqTercero(semifinalistas[1]))
+        col.appendChild(renderPartido({
+            id:      "tercero",
+            eq:      [perdA, perdB],
+            ganador: estado.tercero.ganador,
+            scores:  estado.tercero.scores,
+            tipo:    "tercero",
+            onScore: (sA, sB) => {
+                estado.tercero.scores = [sA, sB]
+                estado.tercero.ganador = resolverGanador(perdA, perdB, sA, sB)
+                render()
+            },
+        }))
+    }
 
-        div.appendChild(sep)
-        div.appendChild(labelTercero)
-        div.appendChild(boxTercero)
+    return col
+}
+
+// ---- CUARTOS DE UN GRUPO ----
+function renderCuartosGrupo(grupo) {
+    const wrap = document.createElement("div")
+
+    const gLabel = document.createElement("div")
+    gLabel.className = "grupo-label"
+    gLabel.textContent = "GRUPO " + grupo
+    wrap.appendChild(gLabel)
+
+    estado.cuartos
+        .filter(p => p.grupo === grupo)
+        .forEach(partido => {
+            wrap.appendChild(renderPartido({
+                id:      "cuarto-" + partido.id,
+                eq:      partido.eq,
+                ganador: partido.ganador,
+                scores:  partido.scores,
+                hora:    partido.hora,
+                tipo:    "cuartos",
+                onScore: (sA, sB) => {
+                    partido.scores = [sA, sB]
+                    partido.ganador = resolverGanador(partido.eq[0], partido.eq[1], sA, sB)
+                    // Resetear semi y todo lo posterior
+                    const semi = estado.semis.find(s => s.cruces.includes(partido.id))
+                    if (semi) { semi.ganador = null; semi.scores = [null, null] }
+                    estado.final.ganador    = null
+                    estado.final.subcampeon = null
+                    estado.final.scores     = [null, null]
+                    estado.tercero.ganador  = null
+                    estado.tercero.scores   = [null, null]
+                    render()
+                },
+            }))
+        })
+
+    return wrap
+}
+
+// ---- SEMI DE UN GRUPO ----
+function renderSemiGrupo(grupo) {
+    const semi  = estado.semis.find(s => s.grupo === grupo)
+    const eqA   = estado.cuartos[semi.cruces[0]].ganador
+    const eqB   = estado.cuartos[semi.cruces[1]].ganador
+
+    return renderPartido({
+        id:      "semi-" + semi.id,
+        eq:      [eqA, eqB],
+        ganador: semi.ganador,
+        scores:  semi.scores,
+        tipo:    "semi",
+        onScore: (sA, sB) => {
+            semi.scores = [sA, sB]
+            semi.ganador = resolverGanador(eqA, eqB, sA, sB)
+            estado.final.ganador    = null
+            estado.final.subcampeon = null
+            estado.final.scores     = [null, null]
+            estado.tercero.ganador  = null
+            estado.tercero.scores   = [null, null]
+            render()
+        },
+    })
+}
+
+// ============================================================
+// RENDER GENÉRICO DE PARTIDO
+// Cada fila: [nombre equipo] ··· [input score]
+// ============================================================
+function renderPartido({ id, eq, ganador, scores, hora, tipo, onScore }) {
+    const [eqA, eqB]   = eq
+    const [sA,  sB]    = scores
+
+    const wrap = document.createElement("div")
+    wrap.className = "partido-wrap"
+
+    if (hora) {
+        const h = document.createElement("div")
+        h.className = "partido-hora"
+        h.textContent = hora
+        wrap.appendChild(h)
+    }
+
+    const card = document.createElement("div")
+    card.className = "partido-card"
+    if (tipo === "final")   card.classList.add("partido-card--final")
+    if (tipo === "tercero") card.classList.add("partido-card--tercero")
+
+    // Fila equipo A
+    card.appendChild(filaEquipo({
+        inputId: id + "-A",
+        nombre:  eqA,
+        score:   sA,
+        ganador,
+        tipo,
+        onChange: (val) => {
+            const nuevaSB = scores[1]
+            if (val !== null && nuevaSB !== null) onScore(val, nuevaSB)
+            else {
+                // Score incompleto: limpiar ganador sin re-render total
+                scores[0] = val
+                actualizarGanador(id, eq, scores, onScore)
+            }
+        },
+    }))
+
+    // Separador VS con scores
+    card.appendChild(separadorVS(sA, sB))
+
+    // Fila equipo B
+    card.appendChild(filaEquipo({
+        inputId: id + "-B",
+        nombre:  eqB,
+        score:   sB,
+        ganador,
+        tipo,
+        onChange: (val) => {
+            const nuevaSA = scores[0]
+            if (nuevaSA !== null && val !== null) onScore(nuevaSA, val)
+            else {
+                scores[1] = val
+                actualizarGanador(id, eq, scores, onScore)
+            }
+        },
+    }))
+
+    wrap.appendChild(card)
+    return wrap
+}
+
+// Actualiza ganador parcialmente sin propagar si algún score falta
+function actualizarGanador(id, eq, scores, onScore) {
+    const [sA, sB] = scores
+    if (sA !== null && sB !== null) {
+        onScore(sA, sB)
+    }
+    // si falta alguno, solo guardamos el valor — no resolvemos
+}
+
+// ---- FILA DE EQUIPO ----
+function filaEquipo({ inputId, nombre, score, ganador, tipo, onChange }) {
+    const fila = document.createElement("div")
+    fila.className = "equipo-fila"
+    if (tipo === "final")   fila.classList.add("equipo-fila--final")
+    if (tipo === "tercero") fila.classList.add("equipo-fila--tercero")
+
+    const esVacio    = !nombre
+    const esGanador  = nombre && ganador === nombre
+    const esPerdedor = nombre && ganador && ganador !== nombre
+
+    if (esGanador)  fila.classList.add("equipo-fila--ganador")
+    if (esPerdedor) fila.classList.add("equipo-fila--perdedor")
+    if (esVacio)    fila.classList.add("equipo-fila--vacio")
+
+    // Nombre
+    const nombreEl = document.createElement("span")
+    nombreEl.className = "equipo-nombre"
+    nombreEl.textContent = nombre || "???"
+    fila.appendChild(nombreEl)
+
+    // Input de score (solo si el equipo existe)
+    if (nombre) {
+        const input = document.createElement("input")
+        input.type            = "number"
+        input.min             = "0"
+        input.max             = "99"
+        input.className       = "score-input"
+        input.dataset.inputId = inputId
+        if (score !== null) input.value = score
+        input.placeholder = "—"
+        if (esPerdedor) input.classList.add("score-input--perdedor")
+        if (esGanador)  input.classList.add("score-input--ganador")
+
+        input.addEventListener("input", () => {
+            const raw = input.value.trim()
+            const val = raw === "" ? null : parseInt(raw, 10)
+            onChange(isNaN(val) ? null : val)
+        })
+
+        // Seleccionar todo al enfocar
+        input.addEventListener("focus", () => input.select())
+
+        fila.appendChild(input)
+    }
+
+    return fila
+}
+
+// ---- SEPARADOR VS ----
+function separadorVS(sA, sB) {
+    const div = document.createElement("div")
+    div.className = "vs-label"
+
+    const ambosTienen = sA !== null && sB !== null
+    if (ambosTienen) {
+        div.textContent = `${sA} — ${sB}`
+        div.classList.add("vs-label--score")
+    } else {
+        div.textContent = "VS"
     }
 
     return div
 }
 
-// ===============================
-// BOTONES FINALES
-// ===============================
-function eqFinal(nombre) {
-    let div = document.createElement("div")
-    div.className = nombre ? "team final-team" : "team final-team empty"
-    div.textContent = nombre || "???"
-
-    if (nombre && finalistas[0] && finalistas[1]) {
-        div.onclick = function () {
-            campeon = nombre
-            segundo = (nombre === finalistas[0]) ? finalistas[1] : finalistas[0]
-            mostrarAnuncio()
-            dibujar()
-        }
-    }
-    return div
-}
-function eqTercero(nombre) {
-    let div = document.createElement("div")
-    div.className = nombre ? "third-team" : "third-team empty"
-    div.textContent = nombre || "???"
-
-    if (nombre && semifinalistas[0] && semifinalistas[1]) {
-        div.onclick = function () {
-            tercero = nombre
-            mostrarAnuncio()
-            dibujar()
-        }
-    }
-
-    return div
+// ---- DETERMINAR GANADOR ----
+function resolverGanador(eqA, eqB, sA, sB) {
+    if (!eqA || !eqB || sA === null || sB === null) return null
+    if (sA === sB) return null      // empate — no hay ganador aún
+    return sA > sB ? eqA : eqB
 }
 
-// ===============================
-// ANUNCIO
-// ===============================
-function mostrarAnuncio() {
+// ---- HELPERS ----
+function perdedorSemi(idx) {
+    const semi = estado.semis[idx]
+    if (!semi.ganador) return null
+    const a = estado.cuartos[semi.cruces[0]].ganador
+    const b = estado.cuartos[semi.cruces[1]].ganador
+    return semi.ganador === a ? b : a
+}
+
+// ---- ANUNCIO ----
+function renderAnuncio() {
+    const el = document.getElementById("winner-announcement")
     let html = ""
-    if (campeon)  html += `<div class="anuncio-campeon">🥇 ${campeon}</div>`
-    if (segundo)  html += `<div class="anuncio-segundo">🥈 ${segundo}</div>`
-    if (tercero)  html += `<div class="anuncio-tercero">🥉 ${tercero}</div>`
-    document.getElementById("winner-announcement").innerHTML = html
+    if (estado.final.ganador)    html += `<div class="anuncio-campeon">🥇 ${estado.final.ganador}</div>`
+    if (estado.final.subcampeon) html += `<div class="anuncio-segundo">🥈 ${estado.final.subcampeon}</div>`
+    if (estado.tercero.ganador)  html += `<div class="anuncio-tercero">🥉 ${estado.tercero.ganador}</div>`
+    el.innerHTML = html
 }
+
+// ---- ARRANQUE ----
+render()
