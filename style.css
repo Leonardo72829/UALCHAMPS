@@ -26,8 +26,8 @@ body {
 h1 {
     font-family: 'Barlow Condensed', sans-serif;
     font-weight: 900;
-    font-size: 3.2rem;
-    letter-spacing: 12px;
+    font-size: 3.8rem;
+    letter-spacing: 14px;
     text-align: center;
     text-transform: uppercase;
     color: #ffffff;
@@ -53,9 +53,10 @@ h1::after {
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 10px;
-    padding: 10px 20px 0;
+    gap: 16px;
+    padding: 16px 40px 0;
     overflow-x: auto;
+    min-height: 60vh;
 }
 
 /* ============================================================
@@ -65,56 +66,56 @@ h1::after {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    min-width: 200px;
-    max-width: 240px;
+    min-width: 260px;
     flex: 1;
+    max-width: 300px;
 }
 
-/* Columna central (final) más estrecha */
+/* Columna central (final) */
 .col--center {
-    min-width: 210px;
-    max-width: 250px;
+    min-width: 240px;
+    max-width: 280px;
     align-items: center;
 }
 
 /* Título de columna */
 .col-titulo {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.6rem;
+    font-size: 0.85rem;
     font-weight: 700;
     letter-spacing: 4px;
     text-transform: uppercase;
     color: #4b5563;
     text-align: center;
-    padding-bottom: 14px;
+    padding-bottom: 16px;
     width: 100%;
 }
 
 .col-titulo--small {
-    font-size: 0.55rem;
+    font-size: 0.75rem;
     letter-spacing: 3px;
     color: #374151;
-    padding-bottom: 8px;
+    padding-bottom: 10px;
 }
 
 /* Trofeo */
 .trophy-icon {
-    font-size: 2rem;
+    font-size: 2.6rem;
     line-height: 1;
     filter: drop-shadow(0 0 12px rgba(34, 197, 94, 0.5));
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 /* Etiqueta de grupo */
 .grupo-label {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.55rem;
+    font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 3px;
     text-transform: uppercase;
     color: #374151;
     text-align: center;
-    padding: 6px 0 8px;
+    padding: 8px 0 10px;
 }
 
 /* Separador 3er lugar */
@@ -129,7 +130,7 @@ h1::after {
    PARTIDO
    ============================================================ */
 .partido-wrap {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -137,19 +138,19 @@ h1::after {
 
 .partido-hora {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.58rem;
+    font-size: 0.8rem;
     font-weight: 600;
     letter-spacing: 2px;
     color: #4b5563;
     text-align: right;
     padding-right: 2px;
-    margin-bottom: 4px;
+    margin-bottom: 5px;
 }
 
 .partido-card {
     background: #161f17;
     border: 1px solid #1f2f21;
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden;
     transition: border-color 0.2s, box-shadow 0.2s;
     width: 100%;
@@ -177,18 +178,18 @@ h1::after {
 .vs-label {
     text-align: center;
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.52rem;
+    font-size: 0.72rem;
     font-weight: 900;
     letter-spacing: 4px;
     color: #252525;
-    padding: 4px 0;
+    padding: 5px 0;
     background: #0e0e0e;
     border-top: 1px solid #191919;
     border-bottom: 1px solid #191919;
 }
 
 .vs-label--score {
-    font-size: 0.78rem;
+    font-size: 1.05rem;
     letter-spacing: 6px;
     color: #4b5563;
 }
@@ -200,23 +201,39 @@ h1::after {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 10px 0 12px;
-    min-height: 42px;
-    gap: 8px;
+    padding: 0 12px 0 10px;
+    min-height: 48px;
+    gap: 10px;
     transition: background 0.15s;
 }
 
-.equipo-fila--final   { min-height: 50px; }
-.equipo-fila--tercero { min-height: 44px; }
+.equipo-fila--final   { min-height: 56px; }
+.equipo-fila--tercero { min-height: 50px; }
 
 .equipo-fila--ganador  { background: #14532d; }
 .equipo-fila--perdedor { opacity: 0.3; }
 .equipo-fila--vacio    { opacity: 0.4; }
 
+/* Círculo identificador de equipo */
+.equipo-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: inline-block;
+    margin-right: 8px;
+    box-shadow: 0 0 6px rgba(0, 0, 0, 0.4);
+    transition: opacity 0.15s;
+}
+
+.equipo-fila--perdedor .equipo-dot {
+    opacity: 0.25;
+}
+
 /* Nombre del equipo */
 .equipo-nombre {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.8rem;
+    font-size: 1.05rem;
     font-weight: 700;
     letter-spacing: 0.8px;
     text-transform: uppercase;
@@ -231,29 +248,28 @@ h1::after {
     color: #2a2a2a;
     font-style: italic;
     font-weight: 400;
-    font-size: 0.68rem;
+    font-size: 0.88rem;
     letter-spacing: 0;
 }
 
-.equipo-fila--final   .equipo-nombre { font-size: 0.88rem; }
-.equipo-fila--tercero .equipo-nombre { font-size: 0.78rem; color: #6b7280; }
+.equipo-fila--final   .equipo-nombre { font-size: 1.15rem; }
+.equipo-fila--tercero .equipo-nombre { font-size: 1rem; color: #6b7280; }
 
 /* Input de score */
 .score-input {
-    width: 44px;
+    width: 54px;
     flex-shrink: 0;
     background: #0e1a10;
     border: 1px solid #2a3d2c;
-    border-radius: 6px;
+    border-radius: 7px;
     color: #e5e5e5;
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 1rem;
+    font-size: 1.3rem;
     font-weight: 700;
     text-align: center;
-    padding: 4px 2px;
+    padding: 5px 2px;
     outline: none;
     transition: border-color 0.15s, background 0.15s;
-    /* ocultar flechas del input number */
     -moz-appearance: textfield;
 }
 .score-input::-webkit-outer-spin-button,
@@ -286,9 +302,9 @@ h1::after {
 
 .anuncio-campeon {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 2rem;
+    font-size: 2.4rem;
     font-weight: 900;
-    letter-spacing: 6px;
+    letter-spacing: 7px;
     color: #4ade80;
     text-transform: uppercase;
     animation: fadeUp 0.4s ease;
@@ -296,7 +312,7 @@ h1::after {
 
 .anuncio-segundo {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 1.4rem;
+    font-size: 1.7rem;
     font-weight: 700;
     letter-spacing: 5px;
     color: #86efac;
@@ -307,7 +323,7 @@ h1::after {
 
 .anuncio-tercero {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 1.2rem;
+    font-size: 1.4rem;
     font-weight: 700;
     letter-spacing: 4px;
     color: #6b7280;
@@ -331,8 +347,13 @@ h1::after {
 /* ============================================================
    RESPONSIVE — apilado vertical en móvil
    ============================================================ */
+@media (max-width: 1100px) {
+    .col      { min-width: 200px; }
+    .col--center { min-width: 200px; }
+}
+
 @media (max-width: 860px) {
-    h1 { font-size: 2rem; letter-spacing: 6px; }
+    h1 { font-size: 2.4rem; letter-spacing: 8px; }
 
     #bracket {
         flex-direction: column;
@@ -344,6 +365,7 @@ h1::after {
     .col,
     .col--center {
         width: 100%;
-        max-width: 360px;
+        max-width: 400px;
+        min-width: unset;
     }
 }

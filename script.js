@@ -1,8 +1,19 @@
 // ============================================================
 // UALCHAMPS - Bracket fijo con marcadores
 // Layout: [Cuartos A] → [Semi A] → [FINAL] ← [Semi B] ← [Cuartos B]
-// El ganador se determina automáticamente al ingresar ambos scores.
 // ============================================================
+
+// ---- COLOR POR EQUIPO ----
+const COLORES = {
+    "PRIMERO IIS":  "#3b82f6",   // azul
+    "TERCERO IIS":  "#f59e0b",   // ámbar
+    "SEPTIMO IIS":  "#ec4899",   // rosa
+    "SEPTIMO ISC":  "#8b5cf6",   // violeta
+    "PRIMERO ISC":  "#ef4444",   // rojo
+    "QUINTO IIS":   "#06b6d4",   // cian
+    "TERCERO ISC":  "#f97316",   // naranja
+    "QUINTO ISC":   "#10b981",   // esmeralda
+}
 
 // ---- DATOS FIJOS ----
 // scores: [scoreA, scoreB] — null mientras no se ingresa
@@ -14,10 +25,10 @@ const estado = {
         { id: 3, grupo: "B", hora: "09:30 AM", eq: ["TERCERO ISC",  "QUINTO ISC"],   ganador: null, scores: [null, null] },
     ],
     semis: [
-        { id: 0, grupo: "A", cruces: [0, 1], ganador: null, scores: [null, null] },
-        { id: 1, grupo: "B", cruces: [2, 3], ganador: null, scores: [null, null] },
+        { id: 0, grupo: "A", hora: "10:00 AM", cruces: [0, 1], ganador: null, scores: [null, null] },
+        { id: 1, grupo: "B", hora: "10:00 AM", cruces: [2, 3], ganador: null, scores: [null, null] },
     ],
-    final:   { ganador: null, subcampeon: null, scores: [null, null] },
+    final:   { hora: "10:30 AM", ganador: null, subcampeon: null, scores: [null, null] },
     tercero: { ganador: null, scores: [null, null] },
 }
 
@@ -78,6 +89,7 @@ function columnaFinal() {
         eq:      [eqA, eqB],
         ganador: estado.final.ganador,
         scores:  estado.final.scores,
+        hora:    estado.final.hora,
         tipo:    "final",
         onScore: (sA, sB) => {
             estado.final.scores = [sA, sB]
@@ -167,6 +179,7 @@ function renderSemiGrupo(grupo) {
         eq:      [eqA, eqB],
         ganador: semi.ganador,
         scores:  semi.scores,
+        hora:    semi.hora,
         tipo:    "semi",
         onScore: (sA, sB) => {
             semi.scores = [sA, sB]
@@ -269,6 +282,14 @@ function filaEquipo({ inputId, nombre, score, ganador, tipo, onChange }) {
     if (esGanador)  fila.classList.add("equipo-fila--ganador")
     if (esPerdedor) fila.classList.add("equipo-fila--perdedor")
     if (esVacio)    fila.classList.add("equipo-fila--vacio")
+
+    // Círculo de color del equipo
+    if (nombre) {
+        const dot = document.createElement("span")
+        dot.className = "equipo-dot"
+        dot.style.background = COLORES[nombre] || "#555"
+        fila.appendChild(dot)
+    }
 
     // Nombre
     const nombreEl = document.createElement("span")
